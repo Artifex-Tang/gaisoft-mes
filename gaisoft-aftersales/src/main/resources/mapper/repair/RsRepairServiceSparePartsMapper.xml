@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.repair.mapper.RsRepairServiceSparePartsMapper">
+    
+    <resultMap type="RsRepairServiceSpareParts" id="RsRepairServiceSparePartsResult">
+        <result property="sparePartId"    column="spare_part_id"    />
+        <result property="providerId"    column="provider_id"    />
+        <result property="providerCode"    column="provider_code"    />
+        <result property="providerName"    column="provider_name"    />
+        <result property="warehouseCode"    column="warehouse_code"    />
+        <result property="warehouseName"    column="warehouse_name"    />
+        <result property="sparePartName"    column="spare_part_name"    />
+        <result property="sparePartUnit"    column="spare_part_unit"    />
+        <result property="sparePartSpec"    column="spare_part_spec"    />
+        <result property="sparePartCode"    column="spare_part_code"    />
+        <result property="transferBy"    column="transfer_by"    />
+        <result property="transferPhone"    column="transfer_phone"    />
+        <result property="transferTime"    column="transfer_time"    />
+        <result property="receiveBy"    column="receive_by"    />
+        <result property="receivePhone"    column="receive_phone"    />
+        <result property="receiveTime"    column="receive_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="attr1"    column="attr1"    />
+        <result property="attr2"    column="attr2"    />
+        <result property="attr3"    column="attr3"    />
+        <result property="attr4"    column="attr4"    />
+        <result property="createId"    column="create_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateId"    column="update_id"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRsRepairServiceSparePartsVo">
+        select spare_part_id, provider_id, provider_code, provider_name, warehouse_code, warehouse_name, spare_part_name, spare_part_unit, spare_part_spec, spare_part_code, transfer_by, transfer_phone, transfer_time, receive_by, receive_phone, receive_time, remark, attr1, attr2, attr3, attr4, create_id, create_by, create_time, update_id, update_by, update_time from rs_repair_service_spare_parts
+    </sql>
+
+    <select id="selectRsRepairServiceSparePartsList" parameterType="RsRepairServiceSpareParts" resultMap="RsRepairServiceSparePartsResult">
+        <include refid="selectRsRepairServiceSparePartsVo"/>
+        <where>  
+            <if test="providerId != null "> and provider_id = #{providerId}</if>
+            <if test="providerCode != null  and providerCode != ''"> and provider_code = #{providerCode}</if>
+            <if test="providerName != null  and providerName != ''"> and provider_name like concat('%', #{providerName}, '%')</if>
+            <if test="warehouseCode != null  and warehouseCode != ''"> and warehouse_code = #{warehouseCode}</if>
+            <if test="warehouseName != null  and warehouseName != ''"> and warehouse_name like concat('%', #{warehouseName}, '%')</if>
+            <if test="sparePartName != null  and sparePartName != ''"> and spare_part_name like concat('%', #{sparePartName}, '%')</if>
+            <if test="sparePartUnit != null  and sparePartUnit != ''"> and spare_part_unit = #{sparePartUnit}</if>
+            <if test="sparePartSpec != null  and sparePartSpec != ''"> and spare_part_spec = #{sparePartSpec}</if>
+            <if test="sparePartCode != null  and sparePartCode != ''"> and spare_part_code = #{sparePartCode}</if>
+            <if test="transferBy != null  and transferBy != ''"> and transfer_by = #{transferBy}</if>
+            <if test="transferPhone != null  and transferPhone != ''"> and transfer_phone = #{transferPhone}</if>
+            <if test="transferTime != null "> and transfer_time = #{transferTime}</if>
+            <if test="receiveBy != null  and receiveBy != ''"> and receive_by = #{receiveBy}</if>
+            <if test="receivePhone != null  and receivePhone != ''"> and receive_phone = #{receivePhone}</if>
+            <if test="receiveTime != null "> and receive_time = #{receiveTime}</if>
+            <if test="attr1 != null  and attr1 != ''"> and attr1 = #{attr1}</if>
+            <if test="attr2 != null  and attr2 != ''"> and attr2 = #{attr2}</if>
+            <if test="attr3 != null "> and attr3 = #{attr3}</if>
+            <if test="attr4 != null "> and attr4 = #{attr4}</if>
+            <if test="createId != null "> and create_id = #{createId}</if>
+            <if test="updateId != null "> and update_id = #{updateId}</if>
+        </where>
+    </select>
+    
+    <select id="selectRsRepairServiceSparePartsBySparePartId" parameterType="Long" resultMap="RsRepairServiceSparePartsResult">
+        <include refid="selectRsRepairServiceSparePartsVo"/>
+        where spare_part_id = #{sparePartId}
+    </select>
+
+    <insert id="insertRsRepairServiceSpareParts" parameterType="RsRepairServiceSpareParts" useGeneratedKeys="true" keyProperty="sparePartId">
+        insert into rs_repair_service_spare_parts
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="providerId != null">provider_id,</if>
+            <if test="providerCode != null">provider_code,</if>
+            <if test="providerName != null">provider_name,</if>
+            <if test="warehouseCode != null">warehouse_code,</if>
+            <if test="warehouseName != null">warehouse_name,</if>
+            <if test="sparePartName != null">spare_part_name,</if>
+            <if test="sparePartUnit != null">spare_part_unit,</if>
+            <if test="sparePartSpec != null">spare_part_spec,</if>
+            <if test="sparePartCode != null">spare_part_code,</if>
+            <if test="transferBy != null">transfer_by,</if>
+            <if test="transferPhone != null">transfer_phone,</if>
+            <if test="transferTime != null">transfer_time,</if>
+            <if test="receiveBy != null">receive_by,</if>
+            <if test="receivePhone != null">receive_phone,</if>
+            <if test="receiveTime != null">receive_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="attr1 != null">attr1,</if>
+            <if test="attr2 != null">attr2,</if>
+            <if test="attr3 != null">attr3,</if>
+            <if test="attr4 != null">attr4,</if>
+            <if test="createId != null">create_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateId != null">update_id,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="providerId != null">#{providerId},</if>
+            <if test="providerCode != null">#{providerCode},</if>
+            <if test="providerName != null">#{providerName},</if>
+            <if test="warehouseCode != null">#{warehouseCode},</if>
+            <if test="warehouseName != null">#{warehouseName},</if>
+            <if test="sparePartName != null">#{sparePartName},</if>
+            <if test="sparePartUnit != null">#{sparePartUnit},</if>
+            <if test="sparePartSpec != null">#{sparePartSpec},</if>
+            <if test="sparePartCode != null">#{sparePartCode},</if>
+            <if test="transferBy != null">#{transferBy},</if>
+            <if test="transferPhone != null">#{transferPhone},</if>
+            <if test="transferTime != null">#{transferTime},</if>
+            <if test="receiveBy != null">#{receiveBy},</if>
+            <if test="receivePhone != null">#{receivePhone},</if>
+            <if test="receiveTime != null">#{receiveTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="attr1 != null">#{attr1},</if>
+            <if test="attr2 != null">#{attr2},</if>
+            <if test="attr3 != null">#{attr3},</if>
+            <if test="attr4 != null">#{attr4},</if>
+            <if test="createId != null">#{createId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateId != null">#{updateId},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRsRepairServiceSpareParts" parameterType="RsRepairServiceSpareParts">
+        update rs_repair_service_spare_parts
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="providerId != null">provider_id = #{providerId},</if>
+            <if test="providerCode != null">provider_code = #{providerCode},</if>
+            <if test="providerName != null">provider_name = #{providerName},</if>
+            <if test="warehouseCode != null">warehouse_code = #{warehouseCode},</if>
+            <if test="warehouseName != null">warehouse_name = #{warehouseName},</if>
+            <if test="sparePartName != null">spare_part_name = #{sparePartName},</if>
+            <if test="sparePartUnit != null">spare_part_unit = #{sparePartUnit},</if>
+            <if test="sparePartSpec != null">spare_part_spec = #{sparePartSpec},</if>
+            <if test="sparePartCode != null">spare_part_code = #{sparePartCode},</if>
+            <if test="transferBy != null">transfer_by = #{transferBy},</if>
+            <if test="transferPhone != null">transfer_phone = #{transferPhone},</if>
+            <if test="transferTime != null">transfer_time = #{transferTime},</if>
+            <if test="receiveBy != null">receive_by = #{receiveBy},</if>
+            <if test="receivePhone != null">receive_phone = #{receivePhone},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="attr1 != null">attr1 = #{attr1},</if>
+            <if test="attr2 != null">attr2 = #{attr2},</if>
+            <if test="attr3 != null">attr3 = #{attr3},</if>
+            <if test="attr4 != null">attr4 = #{attr4},</if>
+            <if test="createId != null">create_id = #{createId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateId != null">update_id = #{updateId},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where spare_part_id = #{sparePartId}
+    </update>
+
+    <delete id="deleteRsRepairServiceSparePartsBySparePartId" parameterType="Long">
+        delete from rs_repair_service_spare_parts where spare_part_id = #{sparePartId}
+    </delete>
+
+    <delete id="deleteRsRepairServiceSparePartsBySparePartIds" parameterType="String">
+        delete from rs_repair_service_spare_parts where spare_part_id in 
+        <foreach item="sparePartId" collection="array" open="(" separator="," close=")">
+            #{sparePartId}
+        </foreach>
+    </delete>
+</mapper>

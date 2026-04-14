@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.kb.mapper.KbSourceDeptMapper">
+    
+    <resultMap type="KbSourceDept" id="KbSourceDeptResult">
+        <result property="sourceId"    column="source_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="ancestors"    column="ancestors"    />
+    </resultMap>
+
+    <sql id="selectKbSourceDeptVo">
+        select source_id, dept_id ,ancestors from kb_source_dept
+    </sql>
+
+    <select id="selectKbSourceDeptList" parameterType="KbSourceDept" resultMap="KbSourceDeptResult">
+        <include refid="selectKbSourceDeptVo"/>
+        <where>  
+            <if test="sourceId != null "> and source_id = #{sourceId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="ancestors != null "> and ancestors = #{ancestors}</if>
+        </where>
+    </select>
+    
+    <select id="selectKbSourceDeptBySourceId" parameterType="Long" resultMap="KbSourceDeptResult">
+        <include refid="selectKbSourceDeptVo"/>
+        where source_id = #{sourceId}
+    </select>
+
+    <insert id="insertKbSourceDept" parameterType="KbSourceDept">
+        insert into kb_source_dept
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sourceId != null">source_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="ancestors != null">ancestors,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sourceId != null">#{sourceId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="ancestors != null">#{ancestors},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKbSourceDept" parameterType="KbSourceDept">
+        update kb_source_dept
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null">dept_id = #{deptId},</if>
+        </trim>
+        where source_id = #{sourceId}
+    </update>
+
+    <delete id="deleteKbSourceDeptBySourceId" parameterType="Long">
+        delete from kb_source_dept where source_id = #{sourceId}
+    </delete>
+    <delete id="deleteKbSourceDeptByDeptId" parameterType="Long">
+        delete from kb_source_dept where dept_id = #{deptId}
+    </delete>
+
+    <delete id="deleteKbSourceDeptBySourceIds" parameterType="String">
+        delete from kb_source_dept where source_id in 
+        <foreach item="sourceId" collection="array" open="(" separator="," close=")">
+            #{sourceId}
+        </foreach>
+    </delete>
+</mapper>

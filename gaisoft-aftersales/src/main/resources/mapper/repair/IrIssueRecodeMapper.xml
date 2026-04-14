@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.repair.mapper.IrIssueRecodeMapper">
+    
+    <resultMap type="IrIssueRecode" id="IrIssueRecodeResult">
+        <result property="issueId"    column="issue_id"    />
+        <result property="issueCode"    column="issue_code"    />
+        <result property="issueName"    column="issue_name"    />
+        <result property="receiveTime"    column="receive_time"    />
+        <result property="receiveId"    column="receive_id"    />
+        <result property="receiveBy"    column="receive_by"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productSn"    column="product_sn"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="issueType"    column="issue_type"    />
+        <result property="issueLevel"    column="issue_level"    />
+        <result property="serviceEngineer"    column="service_engineer"    />
+        <result property="deviceSn"    column="device_sn"    />
+        <result property="deviceName"    column="device_name"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="attr1"    column="attr1"    />
+        <result property="attr2"    column="attr2"    />
+        <result property="attr3"    column="attr3"    />
+        <result property="attr4"    column="attr4"    />
+        <result property="createId"    column="create_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateId"    column="update_id"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectIrIssueRecodeVo">
+        select issue_id, issue_code, issue_name, receive_time, receive_id, receive_by, dept_name, customer_name, contact_person, contact_phone, product_id, product_sn, product_name, product_spec, issue_type, issue_level, service_engineer, device_sn, device_name, status, remark, attr1, attr2, attr3, attr4, create_id, create_by, create_time, update_id, update_by, update_time from ir_issue_recode
+    </sql>
+
+    <select id="selectIrIssueRecodeList" parameterType="IrIssueRecode" resultMap="IrIssueRecodeResult">
+        <include refid="selectIrIssueRecodeVo"/>
+        <where>  
+            <if test="issueCode != null  and issueCode != ''"> and issue_code = #{issueCode}</if>
+            <if test="issueName != null  and issueName != ''"> and issue_name like concat('%', #{issueName}, '%')</if>
+            <if test="receiveTime != null "> and receive_time = #{receiveTime}</if>
+            <if test="receiveId != null "> and receive_id = #{receiveId}</if>
+            <if test="receiveBy != null  and receiveBy != ''"> and receive_by = #{receiveBy}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and contact_person = #{contactPerson}</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productSn != null  and productSn != ''"> and product_sn = #{productSn}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec = #{productSpec}</if>
+            <if test="issueType != null  and issueType != ''"> and issue_type = #{issueType}</if>
+            <if test="issueLevel != null  and issueLevel != ''"> and issue_level = #{issueLevel}</if>
+            <if test="serviceEngineer != null  and serviceEngineer != ''"> and service_engineer = #{serviceEngineer}</if>
+            <if test="deviceSn != null  and deviceSn != ''"> and device_sn = #{deviceSn}</if>
+            <if test="deviceName != null  and deviceName != ''"> and device_name like concat('%', #{deviceName}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="attr1 != null  and attr1 != ''"> and attr1 = #{attr1}</if>
+            <if test="attr2 != null  and attr2 != ''"> and attr2 = #{attr2}</if>
+            <if test="attr3 != null "> and attr3 = #{attr3}</if>
+            <if test="attr4 != null "> and attr4 = #{attr4}</if>
+            <if test="createId != null "> and create_id = #{createId}</if>
+            <if test="updateId != null "> and update_id = #{updateId}</if>
+        </where>
+    </select>
+    
+    <select id="selectIrIssueRecodeByIssueId" parameterType="Long" resultMap="IrIssueRecodeResult">
+        <include refid="selectIrIssueRecodeVo"/>
+        where issue_id = #{issueId}
+    </select>
+
+    <insert id="insertIrIssueRecode" parameterType="IrIssueRecode" useGeneratedKeys="true" keyProperty="issueId">
+        insert into ir_issue_recode
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="issueCode != null">issue_code,</if>
+            <if test="issueName != null">issue_name,</if>
+            <if test="receiveTime != null">receive_time,</if>
+            <if test="receiveId != null">receive_id,</if>
+            <if test="receiveBy != null">receive_by,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="customerName != null">customer_name,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productSn != null">product_sn,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="issueType != null">issue_type,</if>
+            <if test="issueLevel != null">issue_level,</if>
+            <if test="serviceEngineer != null">service_engineer,</if>
+            <if test="deviceSn != null">device_sn,</if>
+            <if test="deviceName != null">device_name,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="attr1 != null">attr1,</if>
+            <if test="attr2 != null">attr2,</if>
+            <if test="attr3 != null">attr3,</if>
+            <if test="attr4 != null">attr4,</if>
+            <if test="createId != null">create_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateId != null">update_id,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="issueCode != null">#{issueCode},</if>
+            <if test="issueName != null">#{issueName},</if>
+            <if test="receiveTime != null">#{receiveTime},</if>
+            <if test="receiveId != null">#{receiveId},</if>
+            <if test="receiveBy != null">#{receiveBy},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="customerName != null">#{customerName},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productSn != null">#{productSn},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="issueType != null">#{issueType},</if>
+            <if test="issueLevel != null">#{issueLevel},</if>
+            <if test="serviceEngineer != null">#{serviceEngineer},</if>
+            <if test="deviceSn != null">#{deviceSn},</if>
+            <if test="deviceName != null">#{deviceName},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="attr1 != null">#{attr1},</if>
+            <if test="attr2 != null">#{attr2},</if>
+            <if test="attr3 != null">#{attr3},</if>
+            <if test="attr4 != null">#{attr4},</if>
+            <if test="createId != null">#{createId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateId != null">#{updateId},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateIrIssueRecode" parameterType="IrIssueRecode">
+        update ir_issue_recode
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="issueCode != null">issue_code = #{issueCode},</if>
+            <if test="issueName != null">issue_name = #{issueName},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            <if test="receiveId != null">receive_id = #{receiveId},</if>
+            <if test="receiveBy != null">receive_by = #{receiveBy},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="customerName != null">customer_name = #{customerName},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productSn != null">product_sn = #{productSn},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="issueType != null">issue_type = #{issueType},</if>
+            <if test="issueLevel != null">issue_level = #{issueLevel},</if>
+            <if test="serviceEngineer != null">service_engineer = #{serviceEngineer},</if>
+            <if test="deviceSn != null">device_sn = #{deviceSn},</if>
+            <if test="deviceName != null">device_name = #{deviceName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="attr1 != null">attr1 = #{attr1},</if>
+            <if test="attr2 != null">attr2 = #{attr2},</if>
+            <if test="attr3 != null">attr3 = #{attr3},</if>
+            <if test="attr4 != null">attr4 = #{attr4},</if>
+            <if test="createId != null">create_id = #{createId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateId != null">update_id = #{updateId},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where issue_id = #{issueId}
+    </update>
+
+    <delete id="deleteIrIssueRecodeByIssueId" parameterType="Long">
+        delete from ir_issue_recode where issue_id = #{issueId}
+    </delete>
+
+    <delete id="deleteIrIssueRecodeByIssueIds" parameterType="String">
+        delete from ir_issue_recode where issue_id in 
+        <foreach item="issueId" collection="array" open="(" separator="," close=")">
+            #{issueId}
+        </foreach>
+    </delete>
+</mapper>

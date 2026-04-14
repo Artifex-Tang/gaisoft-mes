@@ -1,0 +1,18 @@
+package com.gaisoft.system.service;
+
+import com.gaisoft.system.domain.SysNotice;
+import java.util.List;
+
+public interface ISysNoticeService {
+    public SysNotice selectNoticeById(Long var1);
+
+    public List<SysNotice> selectNoticeList(SysNotice var1);
+
+    public int insertNotice(SysNotice var1);
+
+    public int updateNotice(SysNotice var1);
+
+    public int deleteNoticeById(Long var1);
+
+    public int deleteNoticeByIds(Long[] var1);
+}

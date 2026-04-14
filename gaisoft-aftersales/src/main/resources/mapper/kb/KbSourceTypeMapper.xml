@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.kb.mapper.KbSourceTypeMapper">
+    
+    <resultMap type="KbSourceType" id="KbSourceTypeResult">
+        <result property="id"    column="id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectKbSourceTypeVo">
+        select id, parent_id, source_type, create_by, create_time, update_by, update_time from kb_source_type
+    </sql>
+
+    <select id="selectKbSourceTypeList" parameterType="KbSourceType" resultMap="KbSourceTypeResult">
+        <include refid="selectKbSourceTypeVo"/>
+        <where>  
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="sourceType != null  and sourceType != ''"> and source_type = #{sourceType}</if>
+        </where>
+    </select>
+    <select id="selectKbSourceTypeListAndDept" parameterType="KbSourceType" resultMap="KbSourceTypeResult">
+        SELECT DISTINCT a.id, a.parent_id ,a.source_type
+        FROM kb_source_type a
+        INNER JOIN (
+
+        SELECT
+        SUBSTRING_INDEX(SUBSTRING_INDEX(b.ancestors, ',', n.n), ',', -1) AS ancestor_id
+        FROM (
+
+        SELECT DISTINCT ancestors
+        FROM kb_source_dept
+        WHERE dept_id = ${deptId}
+        ) b
+
+        CROSS JOIN (SELECT 1 n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) n
+        WHERE n.n &lt;= LENGTH(b.ancestors) - LENGTH(REPLACE(b.ancestors, ',', '')) + 1
+        ) b_ancestors ON a.id = b_ancestors.ancestor_id
+        ORDER BY FIND_IN_SET(a.id, (SELECT DISTINCT ancestors FROM kb_source_dept WHERE dept_id = ${deptId} LIMIT 1));
+    </select>
+    
+    <select id="selectKbSourceTypeById" parameterType="Long" resultMap="KbSourceTypeResult">
+        <include refid="selectKbSourceTypeVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertKbSourceType" parameterType="KbSourceType">
+        insert into kb_source_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="sourceType != null">source_type,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="sourceType != null">#{sourceType},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKbSourceType" parameterType="KbSourceType">
+        update kb_source_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKbSourceTypeById" parameterType="Long">
+        delete from kb_source_type where id = #{id}
+    </delete>
+
+    <delete id="deleteKbSourceTypeByIds" parameterType="String">
+        delete from kb_source_type where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

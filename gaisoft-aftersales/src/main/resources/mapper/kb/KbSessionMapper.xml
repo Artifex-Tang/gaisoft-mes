@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.kb.mapper.KbSessionMapper">
+    
+    <resultMap type="KbSession" id="KbSessionResult">
+        <result property="id"    column="id"    />
+        <result property="sessionId"    column="session_id"    />
+        <result property="sessionName"    column="session_name"    />
+        <result property="chatId"    column="chat_id"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateDate"    column="update_date"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createBy"    column="create_by"    />
+    </resultMap>
+
+    <sql id="selectKbSessionVo">
+        select id, session_id, chat_id, create_date, create_time, update_date, update_time, user_id,session_name,create_by from kb_session
+    </sql>
+
+    <select id="selectKbSessionList" parameterType="KbSession" resultMap="KbSessionResult">
+        <include refid="selectKbSessionVo"/>
+        <where>  
+            <if test="sessionId != null "> and session_id = #{sessionId}</if>
+            <if test="sessionName != null "> and session_name = #{sessionName}</if>
+            <if test="chatId != null "> and chat_id = #{chatId}</if>
+            <if test="createDate != null "> and create_date = #{createDate}</if>
+            <if test="createBy != null "> and create_by = #{createBy}</if>
+            <if test="updateDate != null "> and update_date = #{updateDate}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectKbSessionById" parameterType="Long" resultMap="KbSessionResult">
+        <include refid="selectKbSessionVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertKbSession" parameterType="KbSession" useGeneratedKeys="true" keyProperty="id">
+        insert into kb_session
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sessionId != null">session_id,</if>
+            <if test="sessionName != null">session_name,</if>
+            <if test="chatId != null">chat_id,</if>
+            <if test="createDate != null">create_date,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateDate != null">update_date,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="createBy != null">create_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sessionId != null">#{sessionId},</if>
+            <if test="sessionName != null">#{sessionName},</if>
+            <if test="chatId != null">#{chatId},</if>
+            <if test="createDate != null">#{createDate},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateDate != null">#{updateDate},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="createBy != null">#{createBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKbSession" parameterType="KbSession">
+        update kb_session
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sessionId != null">session_id = #{sessionId},</if>
+            <if test="sessionName != null">session_name = #{sessionName},</if>
+            <if test="chatId != null">chat_id = #{chatId},</if>
+            <if test="createDate != null">create_date = #{createDate},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateDate != null">update_date = #{updateDate},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKbSessionById" parameterType="Long">
+        delete from kb_session where id = #{id}
+    </delete>
+
+    <delete id="deleteKbSessionByIds" parameterType="String">
+        delete from kb_session where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.repair.mapper.RsRepairServiceProviderMapper">
+    
+    <resultMap type="RsRepairServiceProvider" id="RsRepairServiceProviderResult">
+        <result property="providerId"    column="provider_id"    />
+        <result property="providerCode"    column="provider_code"    />
+        <result property="providerName"    column="provider_name"    />
+        <result property="providerCharge"    column="provider_charge"    />
+        <result property="providerContactPerson"    column="provider_contact_person"    />
+        <result property="providerContactPhone"    column="provider_contact_phone"    />
+        <result property="provinceId"    column="province_id"    />
+        <result property="province"    column="province"    />
+        <result property="cityId"    column="city_id"    />
+        <result property="city"    column="city"    />
+        <result property="districtId"    column="district_id"    />
+        <result property="district"    column="district"    />
+        <result property="serviceRegion"    column="service_region"    />
+        <result property="isDel"    column="is_del"    />
+        <result property="remark"    column="remark"    />
+        <result property="attr1"    column="attr1"    />
+        <result property="attr2"    column="attr2"    />
+        <result property="attr3"    column="attr3"    />
+        <result property="attr4"    column="attr4"    />
+        <result property="createId"    column="create_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateId"    column="update_id"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRsRepairServiceProviderVo">
+        select provider_id, provider_code, provider_name, provider_charge, provider_contact_person, provider_contact_phone, province_id, province, city_id, city, district_id, district, service_region, is_del, remark, attr1, attr2, attr3, attr4, create_id, create_by, create_time, update_id, update_by, update_time from rs_repair_service_provider
+    </sql>
+
+    <select id="selectRsRepairServiceProviderList" parameterType="RsRepairServiceProvider" resultMap="RsRepairServiceProviderResult">
+        <include refid="selectRsRepairServiceProviderVo"/>
+        <where>  
+            <if test="providerCode != null  and providerCode != ''"> and provider_code = #{providerCode}</if>
+            <if test="providerName != null  and providerName != ''"> and provider_name like concat('%', #{providerName}, '%')</if>
+            <if test="providerCharge != null  and providerCharge != ''"> and provider_charge = #{providerCharge}</if>
+            <if test="providerContactPerson != null  and providerContactPerson != ''"> and provider_contact_person = #{providerContactPerson}</if>
+            <if test="providerContactPhone != null  and providerContactPhone != ''"> and provider_contact_phone = #{providerContactPhone}</if>
+            <if test="provinceId != null "> and province_id = #{provinceId}</if>
+            <if test="province != null  and province != ''"> and province = #{province}</if>
+            <if test="cityId != null "> and city_id = #{cityId}</if>
+            <if test="city != null  and city != ''"> and city = #{city}</if>
+            <if test="districtId != null "> and district_id = #{districtId}</if>
+            <if test="district != null  and district != ''"> and district = #{district}</if>
+            <if test="serviceRegion != null  and serviceRegion != ''"> and service_region = #{serviceRegion}</if>
+            <if test="isDel != null  and isDel != ''"> and is_del = #{isDel}</if>
+            <if test="attr1 != null  and attr1 != ''"> and attr1 = #{attr1}</if>
+            <if test="attr2 != null  and attr2 != ''"> and attr2 = #{attr2}</if>
+            <if test="attr3 != null "> and attr3 = #{attr3}</if>
+            <if test="attr4 != null "> and attr4 = #{attr4}</if>
+            <if test="createId != null "> and create_id = #{createId}</if>
+            <if test="updateId != null "> and update_id = #{updateId}</if>
+        </where>
+    </select>
+    
+    <select id="selectRsRepairServiceProviderByProviderId" parameterType="Long" resultMap="RsRepairServiceProviderResult">
+        <include refid="selectRsRepairServiceProviderVo"/>
+        where provider_id = #{providerId}
+    </select>
+
+    <insert id="insertRsRepairServiceProvider" parameterType="RsRepairServiceProvider" useGeneratedKeys="true" keyProperty="providerId">
+        insert into rs_repair_service_provider
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="providerCode != null">provider_code,</if>
+            <if test="providerName != null">provider_name,</if>
+            <if test="providerCharge != null">provider_charge,</if>
+            <if test="providerContactPerson != null">provider_contact_person,</if>
+            <if test="providerContactPhone != null">provider_contact_phone,</if>
+            <if test="provinceId != null">province_id,</if>
+            <if test="province != null">province,</if>
+            <if test="cityId != null">city_id,</if>
+            <if test="city != null">city,</if>
+            <if test="districtId != null">district_id,</if>
+            <if test="district != null">district,</if>
+            <if test="serviceRegion != null">service_region,</if>
+            <if test="isDel != null">is_del,</if>
+            <if test="remark != null">remark,</if>
+            <if test="attr1 != null">attr1,</if>
+            <if test="attr2 != null">attr2,</if>
+            <if test="attr3 != null">attr3,</if>
+            <if test="attr4 != null">attr4,</if>
+            <if test="createId != null">create_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateId != null">update_id,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="providerCode != null">#{providerCode},</if>
+            <if test="providerName != null">#{providerName},</if>
+            <if test="providerCharge != null">#{providerCharge},</if>
+            <if test="providerContactPerson != null">#{providerContactPerson},</if>
+            <if test="providerContactPhone != null">#{providerContactPhone},</if>
+            <if test="provinceId != null">#{provinceId},</if>
+            <if test="province != null">#{province},</if>
+            <if test="cityId != null">#{cityId},</if>
+            <if test="city != null">#{city},</if>
+            <if test="districtId != null">#{districtId},</if>
+            <if test="district != null">#{district},</if>
+            <if test="serviceRegion != null">#{serviceRegion},</if>
+            <if test="isDel != null">#{isDel},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="attr1 != null">#{attr1},</if>
+            <if test="attr2 != null">#{attr2},</if>
+            <if test="attr3 != null">#{attr3},</if>
+            <if test="attr4 != null">#{attr4},</if>
+            <if test="createId != null">#{createId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateId != null">#{updateId},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRsRepairServiceProvider" parameterType="RsRepairServiceProvider">
+        update rs_repair_service_provider
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="providerCode != null">provider_code = #{providerCode},</if>
+            <if test="providerName != null">provider_name = #{providerName},</if>
+            <if test="providerCharge != null">provider_charge = #{providerCharge},</if>
+            <if test="providerContactPerson != null">provider_contact_person = #{providerContactPerson},</if>
+            <if test="providerContactPhone != null">provider_contact_phone = #{providerContactPhone},</if>
+            <if test="provinceId != null">province_id = #{provinceId},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="cityId != null">city_id = #{cityId},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="districtId != null">district_id = #{districtId},</if>
+            <if test="district != null">district = #{district},</if>
+            <if test="serviceRegion != null">service_region = #{serviceRegion},</if>
+            <if test="isDel != null">is_del = #{isDel},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="attr1 != null">attr1 = #{attr1},</if>
+            <if test="attr2 != null">attr2 = #{attr2},</if>
+            <if test="attr3 != null">attr3 = #{attr3},</if>
+            <if test="attr4 != null">attr4 = #{attr4},</if>
+            <if test="createId != null">create_id = #{createId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateId != null">update_id = #{updateId},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where provider_id = #{providerId}
+    </update>
+
+    <delete id="deleteRsRepairServiceProviderByProviderId" parameterType="Long">
+        delete from rs_repair_service_provider where provider_id = #{providerId}
+    </delete>
+
+    <delete id="deleteRsRepairServiceProviderByProviderIds" parameterType="String">
+        delete from rs_repair_service_provider where provider_id in 
+        <foreach item="providerId" collection="array" open="(" separator="," close=")">
+            #{providerId}
+        </foreach>
+    </delete>
+</mapper>

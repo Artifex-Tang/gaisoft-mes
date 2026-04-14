@@ -1,0 +1,21 @@
+package com.gaisoft.common.utils.uuid;
+
+import com.gaisoft.common.utils.uuid.UUID;
+
+public class IdUtils {
+    public static String randomUUID() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static String simpleUUID() {
+        return UUID.randomUUID().toString(true);
+    }
+
+    public static String fastUUID() {
+        return UUID.fastUUID().toString();
+    }
+
+    public static String fastSimpleUUID() {
+        return UUID.fastUUID().toString(true);
+    }
+}

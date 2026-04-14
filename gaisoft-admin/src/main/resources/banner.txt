@@ -1,0 +1,4 @@
+Application Version: ${ruoyi.version}
+Spring Boot Version: 2.5.15
+
+/************开始运行装备综合保障智能问答系统************/

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.kb.mapper.KbSourceFileMapper">
+    
+    <resultMap type="KbSourceFile" id="KbSourceFileResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="typeId"    column="type_id"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="size"    column="size"    />
+        <result property="type"    column="type"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="sourceType"    column="source_type"    />
+    </resultMap>
+
+    <resultMap id="KbSourceFileKbSourceTypeResult" type="KbSourceFile" extends="KbSourceFileResult">
+        <collection property="kbSourceTypeList" ofType="KbSourceType" column="id" select="selectKbSourceTypeList" />
+    </resultMap>
+
+    <resultMap type="KbSourceType" id="KbSourceTypeResult">
+        <result property="id"    column="id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="sourceType"    column="source_type"    />
+    </resultMap>
+
+    <sql id="selectKbSourceFileVo">
+        select id, name, type_id, tenant_id, parent_id, size, type,create_time, create_by from kb_source_file
+    </sql>
+
+    <select id="selectKbSourceFileList" parameterType="KbSourceFile" resultMap="KbSourceFileResult">
+        select a.id, a.name, a.type_id, a.tenant_id, a.parent_id, a.size, a.create_time, a.create_by ,a.type ,b.source_type
+        from kb_source_file a
+        left join kb_source_type b on a.type_id = b.id
+        <where>  
+            <if test="name != null  and name != ''"> and a.name like concat('%', #{name}, '%')</if>
+            <if test="typeId != null "> and a.type_id = #{typeId}</if>
+            <if test="size != null "> and a.size = #{size}</if>
+        </where>
+    </select>
+
+    <select id="selectKbSourceFileById" parameterType="String" resultMap="KbSourceFileKbSourceTypeResult">
+        select a.id, a.name, a.type_id, a.tenant_id, a.parent_id, a.size, a.create_time, a.create_by ,a.type ,b.source_type
+        from kb_source_file a
+                 left join kb_source_type b on a.type_id = b.id
+        where a.id = #{id}
+    </select>
+
+    <select id="selectKbSourceTypeList" resultMap="KbSourceTypeResult">
+        select id, parent_id, source_type, create_by, create_time, update_by, update_time
+        from kb_source_type
+        where id = #{id}
+    </select>
+
+    <insert id="insertKbSourceFile" parameterType="KbSourceFile">
+        insert into kb_source_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="typeId != null">type_id,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="size != null">size,</if>
+            <if test="type != null">type,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="typeId != null">#{typeId},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="size != null">#{size},</if>
+            <if test="type != null">#{type},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKbSourceFile" parameterType="KbSourceFile">
+        update kb_source_file
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="size != null">size = #{size},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKbSourceFileById" parameterType="String">
+        delete from kb_source_file where id = #{id}
+    </delete>
+
+    <delete id="deleteKbSourceFileByIds" parameterType="String">
+        delete from kb_source_file where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteKbSourceTypeByIds" parameterType="String">
+        delete from kb_source_type where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteKbSourceTypeById" parameterType="String">
+        delete from kb_source_type where id = #{id}
+    </delete>
+
+    <insert id="batchKbSourceType">
+        insert into kb_source_type( id, parent_id, source_type, create_by, create_time, update_by, update_time) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.parentId}, #{item.sourceType}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime})
+        </foreach>
+    </insert>
+</mapper>

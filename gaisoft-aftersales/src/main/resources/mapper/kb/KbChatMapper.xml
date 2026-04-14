@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaisoft.kb.mapper.KbChatMapper">
+    
+    <resultMap type="KbChat" id="KbChatResult">
+        <result property="id"    column="id"    />
+        <result property="messageId"    column="message_id"    />
+        <result property="chatId"    column="chat_id"    />
+        <result property="sessionId"    column="session_id"    />
+        <result property="content"    column="content"    />
+        <result property="role"    column="role"    />
+        <result property="packageContent"    column="package_content"    />
+        <result property="reference"    column="reference"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectKbChatVo">
+        select id, message_id, chat_id, session_id, content, package_content,role, reference, create_by, create_time, update_by, update_time from kb_chat
+    </sql>
+
+    <select id="selectKbChatList" parameterType="KbChat" resultMap="KbChatResult">
+        <include refid="selectKbChatVo"/>
+        <where>  
+            <if test="messageId != null "> and message_id = #{messageId}</if>
+            <if test="chatId != null "> and chat_id = #{chatId}</if>
+            <if test="sessionId != null "> and session_id = #{sessionId}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="packageContent != null  and packageContent != ''"> and package_content = #{packageContent}</if>
+            <if test="reference != null  and reference != ''"> and reference = #{reference}</if>
+        </where>
+        order by create_time
+    </select>
+    
+    <select id="selectKbChatById" parameterType="Long" resultMap="KbChatResult">
+        <include refid="selectKbChatVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertKbChat" parameterType="KbChat">
+        insert into kb_chat
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="messageId != null">message_id,</if>
+            <if test="chatId != null">chat_id,</if>
+            <if test="role != null">role,</if>
+            <if test="sessionId != null">session_id,</if>
+            <if test="content != null">content,</if>
+            <if test="packageContent != null and packageContent != ''">package_content,</if>
+            <if test="reference != null">reference,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="messageId != null">#{messageId},</if>
+            <if test="chatId != null">#{chatId},</if>
+            <if test="role != null">#{role},</if>
+            <if test="sessionId != null">#{sessionId},</if>
+            <if test="content != null">#{content},</if>
+            <if test="packageContent != null and packageContent != ''">#{packageContent},</if>
+            <if test="reference != null">#{reference},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKbChat" parameterType="KbChat">
+        update kb_chat
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="messageId != null">message_id = #{messageId},</if>
+            <if test="chatId != null">chat_id = #{chatId},</if>
+            <if test="role != null">chat_id = #{role},</if>
+            <if test="sessionId != null">session_id = #{sessionId},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="packageContent != null and packageContent != ''">package_content = #{packageContent},</if>
+            <if test="reference != null">reference = #{reference},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKbChatById" parameterType="Long">
+        delete from kb_chat where id = #{id}
+    </delete>
+
+    <delete id="deleteKbChatByIds" parameterType="String">
+        delete from kb_chat where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
