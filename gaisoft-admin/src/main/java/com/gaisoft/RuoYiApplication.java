@@ -8,6 +8,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 public class RuoYiApplication {
     public static void main(String[] args) {
         SpringApplication.run(RuoYiApplication.class, (String[])args);
-        System.out.println("**装备综合保障智能问答系统启动成功** \n");
+        System.out.println("**装DARPA智能问答服务工具启动成功** \n");
     }
 }
