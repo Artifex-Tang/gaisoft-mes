@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-    <artifactId>gaisoft-admin</artifactId>
+    <artifactId>gaisoftmes</artifactId>
 
     <description>web服务入口</description>
 
