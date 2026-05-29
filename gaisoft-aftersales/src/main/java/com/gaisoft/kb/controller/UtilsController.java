@@ -44,6 +44,15 @@ public class UtilsController {
     public String common(@RequestBody CommonDto dto) throws JsonProcessingException {
         String base = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
         String auth = this.getAuth(dto.getUrl());
+        if (StringUtils.isEmpty(auth)) {
+            // Force re-login and retry once
+            this.getAuthorization.saveAuthorization();
+            auth = this.getAuthorization.getAuthorization();
+        }
+        if (StringUtils.isEmpty(auth)) {
+            // Still null - return non-401 error to avoid triggering frontend re-login dialog
+            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow session authentication failed\"}";
+        }
         return doRequest(base, dto.getUrl(), dto.getMethod(), dto.getParams(), auth);
     }
 }
