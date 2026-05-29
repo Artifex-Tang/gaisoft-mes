@@ -1,11 +1,8 @@
 package com.gaisoft.kb.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gaisoft.common.utils.StringUtils;
 import com.gaisoft.common.utils.http.HttpUtils;
-import com.gaisoft.kb.controller.GetAuthorization;
 import com.gaisoft.kb.domain.CommonDto;
 import com.gaisoft.system.service.ISysConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +19,31 @@ public class UtilsController {
     @Autowired
     GetAuthorization getAuthorization;
 
+    /**
+     * Choose auth based on ragflow API version:
+     * /api/v1/* uses API key (Bearer token)
+     * /v1/* (legacy) uses session cookie from GetAuthorization
+     */
+    private String getAuth(String url) {
+        if (url != null && url.startsWith("/api/v1/")) {
+            return "Bearer " + this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        }
+        return this.getAuthorization.getAuthorization();
+    }
+
+    private String doRequest(String base, String url, String method, String params, String auth) {
+        if ("get".equals(method)) {
+            return StringUtils.isNotEmpty(params)
+                ? HttpUtils.sendGet(base + url, params, "application/json;charset=UTF-8", auth)
+                : HttpUtils.sendGet(base + url, auth);
+        }
+        return HttpUtils.sendPost(base + url, params, "application/json;charset=UTF-8", method, auth);
+    }
+
     @PostMapping(value={"/common"})
     public String common(@RequestBody CommonDto dto) throws JsonProcessingException {
         String base = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
-        HttpUtils httpUtils = new HttpUtils();
-        String response = null;
-        response = "get".equals(dto.getMethod()) ? (StringUtils.isNotEmpty((String)dto.getParams()) ? HttpUtils.sendGet((String)(base + dto.getUrl()), (String)dto.getParams(), (String)"application/json;charset=UTF-8", (String)this.getAuthorization.getAuthorization()) : HttpUtils.sendGet((String)(base + dto.getUrl()), (String)this.getAuthorization.getAuthorization())) : HttpUtils.sendPost((String)(base + dto.getUrl()), (String)dto.getParams(), (String)"application/json;charset=UTF-8", (String)dto.getMethod(), (String)this.getAuthorization.getAuthorization());
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode1 = objectMapper.readTree(response);
-        String code = String.valueOf(rootNode1.path("code"));
-        if ("401".equals(code)) {
-            this.getAuthorization.saveAuthorization();
-            response = "get".equals(dto.getMethod()) ? (StringUtils.isNotEmpty((String)dto.getParams()) ? HttpUtils.sendGet((String)(base + dto.getUrl()), (String)dto.getParams(), (String)"application/json;charset=UTF-8", (String)this.getAuthorization.getAuthorization()) : HttpUtils.sendGet((String)(base + dto.getUrl()), (String)this.getAuthorization.getAuthorization())) : HttpUtils.sendPost((String)(base + dto.getUrl()), (String)dto.getParams(), (String)"application/json;charset=UTF-8", (String)dto.getMethod(), (String)this.getAuthorization.getAuthorization());
-        }
-        return response;
+        String auth = this.getAuth(dto.getUrl());
+        return doRequest(base, dto.getUrl(), dto.getMethod(), dto.getParams(), auth);
     }
 }
