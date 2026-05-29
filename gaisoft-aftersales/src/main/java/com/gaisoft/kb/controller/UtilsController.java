@@ -40,19 +40,45 @@ public class UtilsController {
         return HttpUtils.sendPost(base + url, params, "application/json;charset=UTF-8", method, auth);
     }
 
+    /**
+     * Check if ragflow response indicates auth failure (code 401).
+     * For /v1/* endpoints: re-login and retry once.
+     * Never return code 401 to frontend to avoid triggering user re-login dialog.
+     */
+    private String handleResponse(String response, String base, String url, String method, String params) {
+        if (response == null) {
+            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow returned empty response\"}";
+        }
+        // Check for ragflow 401 - only /v1/* uses session auth that can expire
+        if (response.contains("\"code\":401") || response.contains("\"code\": 401")) {
+            // Re-login and retry once
+            this.getAuthorization.saveAuthorization();
+            String newAuth = this.getAuth(url);
+            if (StringUtils.isEmpty(newAuth)) {
+                return "{\"code\":500,\"data\":null,\"message\":\"Ragflow session re-login failed\"}";
+            }
+            String retry = doRequest(base, url, method, params, newAuth);
+            if (retry != null && !retry.contains("\"code\":401") && !retry.contains("\"code\": 401")) {
+                return retry;
+            }
+            // Retry also failed - return non-401 error
+            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow authentication failed after retry\"}";
+        }
+        return response;
+    }
+
     @PostMapping(value={"/common"})
     public String common(@RequestBody CommonDto dto) throws JsonProcessingException {
         String base = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
         String auth = this.getAuth(dto.getUrl());
         if (StringUtils.isEmpty(auth)) {
-            // Force re-login and retry once
             this.getAuthorization.saveAuthorization();
-            auth = this.getAuthorization.getAuthorization();
+            auth = this.getAuth(dto.getUrl());
         }
         if (StringUtils.isEmpty(auth)) {
-            // Still null - return non-401 error to avoid triggering frontend re-login dialog
             return "{\"code\":500,\"data\":null,\"message\":\"Ragflow session authentication failed\"}";
         }
-        return doRequest(base, dto.getUrl(), dto.getMethod(), dto.getParams(), auth);
+        String response = doRequest(base, dto.getUrl(), dto.getMethod(), dto.getParams(), auth);
+        return handleResponse(response, base, dto.getUrl(), dto.getMethod(), dto.getParams());
     }
 }
