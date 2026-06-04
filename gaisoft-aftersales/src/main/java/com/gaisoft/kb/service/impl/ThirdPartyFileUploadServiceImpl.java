@@ -1,7 +1,6 @@
 package com.gaisoft.kb.service.impl;
 
-import com.gaisoft.kb.controller.GetAuthorization;
-import com.gaisoft.kb.service.IThirdPartyFileUploadService;
+import com.gaisoft.common.utils.StringUtils;
 import com.gaisoft.system.service.ISysConfigService;
 import java.io.File;
 import java.io.IOException;
@@ -26,24 +25,32 @@ import org.springframework.web.multipart.MultipartFile;
 public class ThirdPartyFileUploadServiceImpl
 implements IThirdPartyFileUploadService {
     @Autowired
-    GetAuthorization getAuthorization;
-    @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private ISysConfigService iSysConfigService;
+
+    /**
+     * Use API key auth for ragflow 0.18.0.
+     */
+    private String getAuth() {
+        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        if (StringUtils.isNotEmpty(apiKey)) {
+            return "Bearer " + apiKey;
+        }
+        return "";
+    }
 
     @Override
     public String uploadToThirdParty(MultipartFile file) throws Exception {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("Authorization", this.getAuthorization.getAuthorization());
-            headers.add("Content-Type", "multipart/form-data");
+            headers.add("Authorization", getAuth());
             LinkedMultiValueMap body = new LinkedMultiValueMap();
             body.add((Object)"file", (Object)new MultipartFileResource(file.getOriginalFilename(), file.getInputStream()));
-            body.add((Object)"file", (Object)new MultipartFileResource(file.getOriginalFilename(), file.getInputStream()));
             HttpEntity requestEntity = new HttpEntity((Object)body, (MultiValueMap)headers);
-            String response = (String)this.restTemplate.postForObject(this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl") + "/v1/file/upload", (Object)requestEntity, String.class, new Object[0]);
+            String baseUrl = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
+            String response = (String)this.restTemplate.postForObject(baseUrl + "/v1/file/upload", (Object)requestEntity, String.class, new Object[0]);
             return response;
         }
         catch (IOException e) {
@@ -59,13 +66,13 @@ implements IThirdPartyFileUploadService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("Authorization", this.getAuthorization.getAuthorization());
-            headers.add("Content-Type", "multipart/form-data");
+            headers.add("Authorization", getAuth());
             LinkedMultiValueMap body = new LinkedMultiValueMap();
             body.add((Object)"file", (Object)new MultipartFileResource(file.getOriginalFilename(), file.getInputStream()));
-            body.add((Object)"kb_id", (Object)kb_id);
             HttpEntity requestEntity = new HttpEntity((Object)body, (MultiValueMap)headers);
-            String response = (String)this.restTemplate.postForObject(this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl") + "/v1/document/upload", (Object)requestEntity, String.class, new Object[0]);
+            String baseUrl = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
+            // ragflow 0.18.0: upload to dataset via /api/v1/datasets/{id}/documents
+            String response = (String)this.restTemplate.postForObject(baseUrl + "/api/v1/datasets/" + kb_id + "/documents", (Object)requestEntity, String.class, new Object[0]);
             return response;
         }
         catch (IOException e) {
@@ -80,7 +87,7 @@ implements IThirdPartyFileUploadService {
     public byte[] downloadFileByUrl(String url) throws Exception {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", this.getAuthorization.getAuthorization());
+            headers.add("Authorization", getAuth());
             HttpEntity requestEntity = new HttpEntity((MultiValueMap)headers);
             ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, requestEntity, byte[].class, new Object[0]);
             if (response.getStatusCode() == HttpStatus.OK) {

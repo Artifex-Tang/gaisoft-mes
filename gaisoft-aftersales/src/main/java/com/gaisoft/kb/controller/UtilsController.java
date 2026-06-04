@@ -20,14 +20,15 @@ public class UtilsController {
     GetAuthorization getAuthorization;
 
     /**
-     * Choose auth based on ragflow API version:
-     * /api/v1/* uses API key (Bearer token)
-     * /v1/* (legacy) uses session cookie from GetAuthorization
+     * ragflow 0.18.0: all endpoints accept API key auth.
+     * Use Bearer token for everything; fall back to session cookie only if no key configured.
      */
     private String getAuth(String url) {
-        if (url != null && url.startsWith("/api/v1/")) {
-            return "Bearer " + this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        if (StringUtils.isNotEmpty(apiKey)) {
+            return "Bearer " + apiKey;
         }
+        // Legacy fallback: session cookie auth
         return this.getAuthorization.getAuthorization();
     }
 

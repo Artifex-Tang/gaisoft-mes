@@ -1,6 +1,6 @@
 package com.gaisoft.kb.controller;
 
-import com.gaisoft.kb.controller.GetAuthorization;
+import com.gaisoft.common.utils.StringUtils;
 import com.gaisoft.system.service.ISysConfigService;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -21,8 +21,17 @@ public class StreamProxyController {
     private ISysConfigService iSysConfigService;
     @Resource
     private WebClient webClient;
-    @Autowired
-    GetAuthorization getAuthorization;
+
+    /**
+     * Use API key auth for ragflow 0.18.0 (all endpoints accept Bearer token).
+     */
+    private String getAuth() {
+        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        if (StringUtils.isNotEmpty(apiKey)) {
+            return "Bearer " + apiKey;
+        }
+        return "";
+    }
 
     @PostMapping(path={"/stream"}, produces={"text/event-stream"})
     public Flux<String> streamProxy(@RequestBody Map<String, Object> params) {
@@ -31,6 +40,6 @@ public class StreamProxyController {
         if (params.containsKey("url")) {
             params.remove("url");
         }
-        return ((WebClient.RequestBodySpec)((WebClient.RequestBodySpec)this.webClient.post().uri(base + url, new Object[0])).header("Authorization", new String[]{this.getAuthorization.getAuthorization()})).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(params)).retrieve().bodyToFlux(String.class).map(data -> data + "\n\n");
+        return ((WebClient.RequestBodySpec)((WebClient.RequestBodySpec)this.webClient.post().uri(base + url, new Object[0])).header("Authorization", new String[]{getAuth()})).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(params)).retrieve().bodyToFlux(String.class).map(data -> data + "\n\n");
     }
 }
