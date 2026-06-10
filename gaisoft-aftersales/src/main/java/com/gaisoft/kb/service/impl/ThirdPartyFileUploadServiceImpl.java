@@ -1,6 +1,7 @@
 package com.gaisoft.kb.service.impl;
 
 import com.gaisoft.common.utils.StringUtils;
+import com.gaisoft.kb.service.IThirdPartyFileUploadService;
 import com.gaisoft.system.service.ISysConfigService;
 import java.io.File;
 import java.io.IOException;

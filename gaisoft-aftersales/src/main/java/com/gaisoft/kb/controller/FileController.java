@@ -1,12 +1,15 @@
 package com.gaisoft.kb.controller;
 
+import com.gaisoft.common.utils.StringUtils;
 import com.gaisoft.common.utils.sign.Base64;
+import com.gaisoft.system.service.ISysConfigService;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value={"/file"})
 public class FileController {
+    @Autowired
+    private ISysConfigService iSysConfigService;
+
+    private String getRagflowAuth() {
+        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        if (StringUtils.isNotEmpty(apiKey)) {
+            return "Bearer " + apiKey;
+        }
+        return "";
+    }
+
     /*
      * WARNING - Removed try catching itself - possible behaviour change.
      */
@@ -29,6 +43,10 @@ public class FileController {
         connection.setRequestMethod("GET");
         connection.setConnectTimeout(50000);
         connection.setReadTimeout(50000);
+        String auth = getRagflowAuth();
+        if (StringUtils.isNotEmpty(auth)) {
+            connection.setRequestProperty("Authorization", auth);
+        }
         try (InputStream in = connection.getInputStream();
              ServletOutputStream out = response.getOutputStream();){
             int len;
@@ -56,6 +74,10 @@ public class FileController {
         connection.setRequestMethod("GET");
         connection.setConnectTimeout(50000);
         connection.setReadTimeout(50000);
+        String auth = getRagflowAuth();
+        if (StringUtils.isNotEmpty(auth)) {
+            connection.setRequestProperty("Authorization", auth);
+        }
         try (InputStream in = connection.getInputStream();
              ServletOutputStream out = response.getOutputStream();){
             int len;
