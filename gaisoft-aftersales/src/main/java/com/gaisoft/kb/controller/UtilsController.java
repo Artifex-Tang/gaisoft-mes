@@ -20,15 +20,18 @@ public class UtilsController {
     GetAuthorization getAuthorization;
 
     /**
-     * ragflow 0.18.0: all endpoints accept API key auth.
-     * Use Bearer token for everything; fall back to session cookie only if no key configured.
+     * ragflow 0.18.0 dual auth:
+     * /api/v1/* SDK endpoints → Bearer API key
+     * /v1/* web UI endpoints → session JWT token from login
      */
     private String getAuth(String url) {
-        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
-        if (StringUtils.isNotEmpty(apiKey)) {
-            return "Bearer " + apiKey;
+        if (url != null && url.startsWith("/api/v1/")) {
+            String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+            if (StringUtils.isNotEmpty(apiKey)) {
+                return "Bearer " + apiKey;
+            }
         }
-        // Legacy fallback: session cookie auth
+        // Web UI endpoints (/v1/*): use session JWT token
         return this.getAuthorization.getAuthorization();
     }
 
@@ -43,16 +46,31 @@ public class UtilsController {
 
     /**
      * Check if ragflow response indicates auth failure (code 401).
-     * Since all requests use API key, retry won't help on 401.
+     * For /v1/* web UI endpoints: re-login and retry with fresh session token.
      * Never return code 401 to frontend to avoid triggering user re-login dialog.
      */
     private String handleResponse(String response, String base, String url, String method, String params) {
         if (response == null) {
             return "{\"code\":500,\"data\":null,\"message\":\"Ragflow returned empty response\"}";
         }
-        // API key auth failed — return 500, not 401
+        // Check for ragflow 401
         if (response.contains("\"code\":401") || response.contains("\"code\": 401")) {
-            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow API key authentication failed\"}";
+            // For /api/v1/* SDK endpoints, API key is static - retry won't help
+            if (url != null && url.startsWith("/api/v1/")) {
+                return "{\"code\":500,\"data\":null,\"message\":\"Ragflow API key authentication failed\"}";
+            }
+            // For /v1/* web UI endpoints: re-login to get fresh session token
+            this.getAuthorization.saveAuthorization();
+            String newSessionToken = this.getAuthorization.getAuthorization();
+            if (StringUtils.isEmpty(newSessionToken)) {
+                return "{\"code\":500,\"data\":null,\"message\":\"Ragflow session re-login failed\"}";
+            }
+            String retry = doRequest(base, url, method, params, newSessionToken);
+            if (retry != null && !retry.contains("\"code\":401") && !retry.contains("\"code\": 401")) {
+                return retry;
+            }
+            // Retry also failed - return non-401 error
+            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow authentication failed after retry\"}";
         }
         return response;
     }
