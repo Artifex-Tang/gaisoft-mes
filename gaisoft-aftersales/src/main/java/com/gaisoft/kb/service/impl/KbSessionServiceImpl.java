@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gaisoft.common.utils.DateUtils;
+import com.gaisoft.common.utils.StringUtils;
 import com.gaisoft.common.utils.http.HttpUtils;
-import com.gaisoft.kb.controller.GetAuthorization;
 import com.gaisoft.kb.domain.KbChat;
 import com.gaisoft.kb.domain.KbSession;
 import com.gaisoft.kb.mapper.KbChatMapper;
@@ -26,8 +26,16 @@ implements IKbSessionService {
     private KbChatMapper kbChatMapper;
     @Autowired
     private ISysConfigService iSysConfigService;
-    @Autowired
-    GetAuthorization getAuthorization;
+    /**
+     * ragflow 0.18.0: use API key auth for all endpoints.
+     */
+    private String getAuth() {
+        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+        if (StringUtils.isNotEmpty(apiKey)) {
+            return "Bearer " + apiKey;
+        }
+        return "";
+    }
 
     @Override
     public KbSession selectKbSessionById(Long id) {
@@ -43,7 +51,6 @@ implements IKbSessionService {
     public KbSession insertKbSession(KbSession kbSession) throws JsonProcessingException {
         String base = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
         String url = base + "/v1/conversation/set";
-        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
         String response = null;
         String code = null;
         HashMap<String, Object> map = new HashMap<String, Object>();
@@ -53,17 +60,9 @@ implements IKbSessionService {
         map.put("conversation_id", kbSession.getSessionId());
         ObjectMapper objectMapper = new ObjectMapper();
         String param = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
-        HttpUtils httpRagUtils = new HttpUtils();
-        response = HttpUtils.sendPost((String)url, (String)param, (String)"application/json", (String)"POST", (String)this.getAuthorization.getAuthorization());
+        response = HttpUtils.sendPost((String)url, (String)param, (String)"application/json", (String)"POST", (String)getAuth());
         JsonNode rootNode = objectMapper.readTree(response);
         code = String.valueOf(rootNode.path("code"));
-        if (401 == Integer.parseInt(code)) {
-            HttpUtils httpUtils = new HttpUtils();
-            this.getAuthorization.saveAuthorization();
-            response = HttpUtils.sendPost((String)url, (String)param, (String)"application/json", (String)"POST", (String)this.getAuthorization.getAuthorization());
-            JsonNode rootNode1 = objectMapper.readTree(response);
-            code = String.valueOf(rootNode1.path("code"));
-        }
         if (0 == Integer.parseInt(code)) {
             kbSession.setCreateTime(DateUtils.getNowDate());
             String sessionId = rootNode.path("data").path("id").asText();

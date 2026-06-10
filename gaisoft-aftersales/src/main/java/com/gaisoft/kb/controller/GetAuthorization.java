@@ -9,6 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @Deprecated Use API key auth (RagFlowKey config) instead.
+ * This session-based auth is kept for legacy fallback only.
+ * All ragflow calls should use Bearer API key via ISysConfigService.selectConfigByKey("RagFlowKey").
+ */
+@Deprecated
 @Service
 public class GetAuthorization {
     private static final ConcurrentHashMap<String, CacheEntry> cache = new ConcurrentHashMap();
