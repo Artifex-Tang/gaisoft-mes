@@ -50,27 +50,28 @@ public class UtilsController {
      * Never return code 401 to frontend to avoid triggering user re-login dialog.
      */
     private String handleResponse(String response, String base, String url, String method, String params) {
-        if (response == null) {
-            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow returned empty response\"}";
+        // HttpUtils returns "" (not null) on ConnectException — treat both as failure
+        if (StringUtils.isEmpty(response)) {
+            return "{\"code\":500,\"msg\":\"Ragflow服务无响应，请检查RagFlowServerBaseUrl配置及网络连通性\",\"data\":null}";
         }
         // Check for ragflow 401
         if (response.contains("\"code\":401") || response.contains("\"code\": 401")) {
             // For /api/v1/* SDK endpoints, API key is static - retry won't help
             if (url != null && url.startsWith("/api/v1/")) {
-                return "{\"code\":500,\"data\":null,\"message\":\"Ragflow API key authentication failed\"}";
+                return "{\"code\":500,\"msg\":\"Ragflow API Key认证失败，请检查sys_config中RagFlowKey是否为当前Ragflow实例生成的有效Key\",\"data\":null}";
             }
             // For /v1/* web UI endpoints: re-login to get fresh session token
             this.getAuthorization.saveAuthorization();
             String newSessionToken = this.getAuthorization.getAuthorization();
             if (StringUtils.isEmpty(newSessionToken)) {
-                return "{\"code\":500,\"data\":null,\"message\":\"Ragflow session re-login failed\"}";
+                return "{\"code\":500,\"msg\":\"Ragflow会话重新登录失败，请检查sys_config中email/password配置\",\"data\":null}";
             }
             String retry = doRequest(base, url, method, params, newSessionToken);
             if (retry != null && !retry.contains("\"code\":401") && !retry.contains("\"code\": 401")) {
                 return retry;
             }
             // Retry also failed - return non-401 error
-            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow authentication failed after retry\"}";
+            return "{\"code\":500,\"msg\":\"Ragflow认证重试后仍失败，请检查Ragflow服务状态及认证配置\",\"data\":null}";
         }
         return response;
     }
@@ -84,7 +85,7 @@ public class UtilsController {
             auth = this.getAuth(dto.getUrl());
         }
         if (StringUtils.isEmpty(auth)) {
-            return "{\"code\":500,\"data\":null,\"message\":\"Ragflow session authentication failed\"}";
+            return "{\"code\":500,\"msg\":\"Ragflow会话认证失败，请检查sys_config中RagFlowServerBaseUrl/email/password配置\",\"data\":null}";
         }
         String response = doRequest(base, dto.getUrl(), dto.getMethod(), dto.getParams(), auth);
         return handleResponse(response, base, dto.getUrl(), dto.getMethod(), dto.getParams());
