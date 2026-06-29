@@ -1,6 +1,7 @@
 package com.gaisoft.kb.service.impl;
 
 import com.gaisoft.common.utils.StringUtils;
+import com.gaisoft.kb.controller.GetAuthorization;
 import com.gaisoft.kb.service.IThirdPartyFileUploadService;
 import com.gaisoft.system.service.ISysConfigService;
 import java.io.File;
@@ -29,16 +30,23 @@ implements IThirdPartyFileUploadService {
     private RestTemplate restTemplate;
     @Autowired
     private ISysConfigService iSysConfigService;
+    @Autowired
+    private GetAuthorization getAuthorization;
 
     /**
-     * Use API key auth for ragflow 0.18.0.
+     * ragflow 0.18.0 dual auth:
+     * /api/v1/* SDK endpoints → Bearer API key
+     * /v1/* web UI endpoints (e.g. /v1/file/upload) → session token from login
      */
-    private String getAuth() {
-        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
-        if (StringUtils.isNotEmpty(apiKey)) {
-            return "Bearer " + apiKey;
+    private String getAuth(String url) {
+        if (url != null && url.contains("/api/v1/")) {
+            String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+            if (StringUtils.isNotEmpty(apiKey)) {
+                return "Bearer " + apiKey;
+            }
         }
-        return "";
+        String token = this.getAuthorization.getAuthorization();
+        return StringUtils.isNotEmpty(token) ? token : "";
     }
 
     @Override
@@ -46,7 +54,7 @@ implements IThirdPartyFileUploadService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("Authorization", getAuth());
+            headers.add("Authorization", getAuth("/v1/file/upload"));
             LinkedMultiValueMap body = new LinkedMultiValueMap();
             body.add((Object)"file", (Object)new MultipartFileResource(file.getOriginalFilename(), file.getInputStream()));
             HttpEntity requestEntity = new HttpEntity((Object)body, (MultiValueMap)headers);
@@ -67,7 +75,7 @@ implements IThirdPartyFileUploadService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("Authorization", getAuth());
+            headers.add("Authorization", getAuth("/api/v1/datasets/" + kb_id + "/documents"));
             LinkedMultiValueMap body = new LinkedMultiValueMap();
             body.add((Object)"file", (Object)new MultipartFileResource(file.getOriginalFilename(), file.getInputStream()));
             HttpEntity requestEntity = new HttpEntity((Object)body, (MultiValueMap)headers);
@@ -88,7 +96,7 @@ implements IThirdPartyFileUploadService {
     public byte[] downloadFileByUrl(String url) throws Exception {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", getAuth());
+            headers.add("Authorization", getAuth(url));
             HttpEntity requestEntity = new HttpEntity((MultiValueMap)headers);
             ResponseEntity response = this.restTemplate.exchange(url, HttpMethod.GET, requestEntity, byte[].class, new Object[0]);
             if (response.getStatusCode() == HttpStatus.OK) {

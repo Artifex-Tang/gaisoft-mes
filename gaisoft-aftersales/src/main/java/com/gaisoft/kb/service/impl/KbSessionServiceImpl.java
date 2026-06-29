@@ -50,14 +50,14 @@ implements IKbSessionService {
     @Override
     public KbSession insertKbSession(KbSession kbSession) throws JsonProcessingException {
         String base = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
-        String url = base + "/v1/conversation/set";
+        // ragflow 0.18.0: use API-key endpoint POST /api/v1/chats/{id}/sessions.
+        // Legacy /v1/conversation/set requires a /v1/user/login session token and
+        // rejects the API key with code:401, breaking session ("add 对话") creation.
+        String url = base + "/api/v1/chats/" + kbSession.getChatId() + "/sessions";
         String response = null;
         String code = null;
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("name", kbSession.getSessionName());
-        map.put("dialog_id", kbSession.getChatId());
-        map.put("is_new", true);
-        map.put("conversation_id", kbSession.getSessionId());
         ObjectMapper objectMapper = new ObjectMapper();
         String param = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
         response = HttpUtils.sendPost((String)url, (String)param, (String)"application/json", (String)"POST", (String)getAuth());

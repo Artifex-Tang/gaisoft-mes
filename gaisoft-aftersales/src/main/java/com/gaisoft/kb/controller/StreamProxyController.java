@@ -19,18 +19,27 @@ import reactor.core.publisher.Flux;
 public class StreamProxyController {
     @Autowired
     private ISysConfigService iSysConfigService;
+    @Autowired
+    private GetAuthorization getAuthorization;
     @Resource
     private WebClient webClient;
 
     /**
-     * Use API key auth for ragflow 0.18.0 (all endpoints accept Bearer token).
+     * ragflow 0.18.0 dual auth:
+     * /api/v1/* SDK endpoints → Bearer API key
+     * /v1/* web UI endpoints → session token from /v1/user/login (Authorization response header)
+     * (Legacy pure-API-key auth 401s on /v1/* — they require the login session token.)
      */
-    private String getAuth() {
-        String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
-        if (StringUtils.isNotEmpty(apiKey)) {
-            return "Bearer " + apiKey;
+    private String getAuth(String url) {
+        if (url != null && url.startsWith("/api/v1/")) {
+            String apiKey = this.iSysConfigService.selectConfigByKey("RagFlowKey");
+            if (StringUtils.isNotEmpty(apiKey)) {
+                return "Bearer " + apiKey;
+            }
         }
-        return "";
+        // /v1/* web UI endpoints: session login token (cached 60s by GetAuthorization)
+        String token = this.getAuthorization.getAuthorization();
+        return StringUtils.isNotEmpty(token) ? token : "";
     }
 
     @PostMapping(path={"/stream"}, produces={"text/event-stream"})
@@ -40,6 +49,6 @@ public class StreamProxyController {
         if (params.containsKey("url")) {
             params.remove("url");
         }
-        return ((WebClient.RequestBodySpec)((WebClient.RequestBodySpec)this.webClient.post().uri(base + url, new Object[0])).header("Authorization", new String[]{getAuth()})).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(params)).retrieve().bodyToFlux(String.class).map(data -> data + "\n\n");
+        return ((WebClient.RequestBodySpec)((WebClient.RequestBodySpec)this.webClient.post().uri(base + url, new Object[0])).header("Authorization", new String[]{getAuth(url)})).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(params)).retrieve().bodyToFlux(String.class).map(data -> data + "\n\n");
     }
 }
