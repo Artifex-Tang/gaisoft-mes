@@ -11,6 +11,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,6 +83,18 @@ public class FileController {
             case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             default: return "application/pdf";
         }
+    }
+
+    /**
+     * Preview a ragflow document by id. Builds the ragflow URL server-side from
+     * RagFlowServerBaseUrl config (frontend doesn't need to know it), proxies
+     * with the API key, and sets content-type from suffix.
+     */
+    @GetMapping(value={"/doc/{docId}"})
+    public void proxyDoc(HttpServletResponse response, @PathVariable("docId") String docId,
+            @RequestParam(value="suffix", required=false, defaultValue="pdf") String suffix) throws Exception {
+        String base = this.iSysConfigService.selectConfigByKey("RagFlowServerBaseUrl");
+        proxyPdf(response, base + "/v1/document/get/" + docId, suffix);
     }
 
     /*
