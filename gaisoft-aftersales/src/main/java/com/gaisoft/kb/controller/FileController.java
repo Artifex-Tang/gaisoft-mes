@@ -33,9 +33,10 @@ public class FileController {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     @GetMapping(value={"/view"})
-    public void proxyPdf(HttpServletResponse response, @RequestParam String pdfUrl) throws Exception {
+    public void proxyPdf(HttpServletResponse response, @RequestParam String pdfUrl,
+            @RequestParam(value="suffix", required=false, defaultValue="pdf") String suffix) throws Exception {
         if (!pdfUrl.startsWith("https://") && !pdfUrl.startsWith("http://")) {
-            response.sendError(400, "无效的 PDF 地址");
+            response.sendError(400, "无效的文件地址");
             return;
         }
         URL url = new URL(pdfUrl);
@@ -50,8 +51,8 @@ public class FileController {
         try (InputStream in = connection.getInputStream();
              ServletOutputStream out = response.getOutputStream();){
             int len;
-            response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "inline;filename=proxy.pdf");
+            response.setContentType(contentTypeOf(suffix));
+            response.setHeader("Content-Disposition", "inline;filename=proxy." + suffix);
             byte[] buffer = new byte[1024];
             while ((len = in.read(buffer)) != -1) {
                 out.write(buffer, 0, len);
@@ -60,6 +61,26 @@ public class FileController {
         }
         finally {
             connection.disconnect();
+        }
+    }
+
+    /** Map file suffix to MIME type (pdf default). */
+    private String contentTypeOf(String suffix) {
+        if (suffix == null) {
+            return "application/pdf";
+        }
+        switch (suffix) {
+            case "png": return "image/png";
+            case "jpg":
+            case "jpeg": return "image/jpeg";
+            case "gif": return "image/gif";
+            case "xls": return "application/vnd.ms-excel";
+            case "xlsx": return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            case "ppt": return "application/vnd.ms-powerpoint";
+            case "pptx": return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+            case "doc": return "application/msword";
+            case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            default: return "application/pdf";
         }
     }
 
